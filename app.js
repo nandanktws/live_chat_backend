@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 
 require("dotenv").config()
-const { saveChat, getChat } = require("./services/chat.services")
+const { saveChat, getChat, getMyUser, getChatsByUserId, getAllMyChatListUsersById } = require("./services/chat.services")
 
 app.use(cors(
   {
@@ -118,26 +118,46 @@ io.on('connection', async function (socket) {
 
 
   socket.emit('userInfo', socket.id);
-  socket.emit('allUsers', allUsersData);
 
-  try {
-    const chat = await getChat();
-    // console.log('chat', chat);
-    socket.emit('allMessage', chat);
-  } catch (error) {
-    console.log(error);
-  }
-
+  // try {
+  //   const chat = await getChat();
+  //   // console.log('chat', chat);
+  //   socket.emit('allMessage', chat);
+  // } catch (error) {
+  //   console.log(error);
+  // }
 
 
-  socket.on('allUsers', (e) => {
+
+  // Manage All User Information & Chats On Load
+  socket.on('userInfo', async (e) => {
     allUsersData.push(e)
-    console.log('New User === >');
-    console.log('NAME:', e.name, '|', 'ID:', e.id);
+    console.log('User Details === >');
+    try {
+      const myUserInformation = await getMyUser(e);
+      socket.emit('userInfo', myUserInformation[0]);
 
-    socket.emit('allUsers', allUsersData);
-    socket.broadcast.emit('allUsers', allUsersData);
+      const myChatsMessages = await getChatsByUserId(e.userId);
+      socket.emit('userChatsMessages', myChatsMessages);
+      
+      // const myChatsList = await getAllMyChatListUsersById(e.userId);
+      // socket.emit('userChatList', myChatsList);
+
+    } catch (error) {
+      console.log(error);
+    }
   })
+
+
+
+  // socket.on('allUsers', (e) => {
+  //   allUsersData.push(e)
+  //   console.log('New User === >');
+  //   // console.log('NAME:', e.name, '|', 'ID:', e.id);
+
+  //   // socket.emit('allUsers', allUsersData);
+  //   // socket.broadcast.emit('allUsers', allUsersData);
+  // })
 
 
   socket.on('myMessage', async (msg) => {
