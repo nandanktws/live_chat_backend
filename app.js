@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 
 require("dotenv").config()
-const { saveChat, getChat, getMyUser, getChatsByUserId, getAllMyChatListUsersById } = require("./services/chat.services")
+const { saveChat, getChat, getMyUser, getChatsByUserId, getAllMyChatListUsersById, getUsersByIds } = require("./services/chat.services")
 
 app.use(cors(
   {
@@ -139,7 +139,7 @@ io.on('connection', async function (socket) {
 
       const myChatsMessages = await getChatsByUserId(e.userId);
       socket.emit('userChatsMessages', myChatsMessages);
-      
+
       // const myChatsList = await getAllMyChatListUsersById(e.userId);
       // socket.emit('userChatList', myChatsList);
 
@@ -150,25 +150,36 @@ io.on('connection', async function (socket) {
 
 
 
-  // socket.on('allUsers', (e) => {
-  //   allUsersData.push(e)
-  //   console.log('New User === >');
-  //   // console.log('NAME:', e.name, '|', 'ID:', e.id);
+  // socket.on('getUsersByIds', async (e) => {
+  //   console.log('getUsersByIds === <<', e);
+  //   try {
+  //     const allUsersFromIDs = await getUsersByIds(e)
+  //     // console.log('getUsersByIds === >>', allUsersFromIDs);
+  //     socket.emit('getUsersByIds', allUsersFromIDs);
 
-  //   // socket.emit('allUsers', allUsersData);
-  //   // socket.broadcast.emit('allUsers', allUsersData);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
   // })
 
 
   socket.on('myMessage', async (msg) => {
     console.log('New Message  === >');
-    console.log('NAME:', msg.name, '|', 'ID:', msg.id);
+    console.log('USER:', msg.id, '|', 'MESSAGE:', msg.message, 'TIME:', msg.time, '|', 'ROOM:', msg.roomId);
     try {
       await saveChat(msg);
-      const chat = await getChat(); // Retrieve the updated chat data
+      socket.emit('newMessage', msg);
+      socket.broadcast.emit('newMessage', msg);
+      // const chat = await getChat();
 
-      socket.emit('allMessage', chat); // Emit the updated chat data to the current socket
-      socket.broadcast.emit('allMessage', chat);
+      // socket.emit('allMessage', chat);
+      socket.broadcast.emit('allMessage', msg);
+
+      // const myChatsMessages = await getChatsByUserId(e.userId);
+      // socket.emit('userChatsMessages', myChatsMessages);
+
+
+
     } catch (error) {
       console.log(error);
     }

@@ -17,10 +17,13 @@ const chatSchema = new mongoose.Schema({
   //   type: String,
   //   required: true,
   // },
-  // name:{   
-  //   type: String,
-  //   required: true,
-  // }
+  info:{   
+    type: Object,
+    required: true,
+  },
+  otherUser: {
+    type: Object,
+  }
 },
 {
   timestamps: true,
