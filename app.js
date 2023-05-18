@@ -167,13 +167,13 @@ io.on('connection', async function (socket) {
     console.log('New Message  === >');
     console.log('USER:', msg.id, '|', 'MESSAGE:', msg.message, 'TIME:', msg.time, '|', 'ROOM:', msg.roomId);
     try {
-      await saveChat(msg);
-      socket.emit('newMessage', msg);
+      // socket.emit('newMessage', msg);
       socket.broadcast.emit('newMessage', msg);
+      await saveChat(msg);
       // const chat = await getChat();
 
       // socket.emit('allMessage', chat);
-      socket.broadcast.emit('allMessage', msg);
+      // socket.broadcast.emit('allMessage', msg);
 
       // const myChatsMessages = await getChatsByUserId(e.userId);
       // socket.emit('userChatsMessages', myChatsMessages);
